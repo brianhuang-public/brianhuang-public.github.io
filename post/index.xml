@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on Brian&#39;s Video Codec Blog</title>
+    <link>http://localhost:1313/post/</link>
+    <description>Recent content in Posts on Brian&#39;s Video Codec Blog</description>
+    <generator>Hugo -- 0.143.1</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 27 Jan 2025 18:27:33 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Learning System C basic in one page</title>
+      <link>http://localhost:1313/post/learning-systemc/</link>
+      <pubDate>Mon, 27 Jan 2025 18:27:33 +0800</pubDate>
+      <guid>http://localhost:1313/post/learning-systemc/</guid>
+      <description>&lt;h1 id=&#34;intro&#34;&gt;Intro&lt;/h1&gt;
+&lt;p&gt;SystemC用于硬件仿真的cmodel模型建立，相比传统C语言的cmodel模型，有以下好处。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;可以实现精确至cycle级的仿真模型&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&#34;note&#34;&gt;Note&lt;/h1&gt;
+&lt;p&gt;本文是基于https://www.learnsystemc.com/ 整理的笔记，大部分内容该网站都很详细了，在此之上，对于其中的细节部分进行整理。&lt;/p&gt;
+&lt;h1 id=&#34;sc-module&#34;&gt;sc module&lt;/h1&gt;
+&lt;p&gt;&lt;code&gt;SC_MODULE&lt;/code&gt;该define用于声明module，对于每个module，本质上就是C++的类，需要使用构造函数进行声明，声明方法如下：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用&lt;code&gt;SC_CTOR&lt;/code&gt; marco，该marco会生成一个默认的构造函数，该构造函数不支持多参数的传入。&lt;/li&gt;
+&lt;li&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;// Learn with Examples, 2020, MIT license
+#include &amp;lt;systemc&amp;gt;
+using namespace sc_core;
+
+SC_MODULE(MODULE_A) { // approach #1, use systemC provided SC_MODULE macro
+  SC_CTOR(MODULE_A) { // default constructor
+    std::cout &amp;lt;&amp;lt; name() &amp;lt;&amp;lt; &amp;#34; constructor&amp;#34; &amp;lt;&amp;lt; std::endl; // name() returns the object name, which is provided during instantization
+  }
+};
+struct MODULE_B : public sc_module { // approach #2, this uses c++ syntax and is more readiable
+  SC_CTOR(MODULE_B) {
+    std::cout &amp;lt;&amp;lt; name() &amp;lt;&amp;lt; &amp;#34; constructor&amp;#34; &amp;lt;&amp;lt; std::endl;
+  }
+};
+class MODULE_C : public sc_module { // approach #3, use class instead of struct
+public: // have to explicitly declare constructor function as public 
+  SC_CTOR(MODULE_C) {
+    std::cout &amp;lt;&amp;lt; name() &amp;lt;&amp;lt; &amp;#34; constructor&amp;#34; &amp;lt;&amp;lt; std::endl;
+  }
+};
+
+int sc_main(int, char*[]) { // systemC entry point
+  MODULE_A module_a(&amp;#34;module_a&amp;#34;); // declare and instantiate module_a, it&amp;#39;s common practice to assign module name == object name
+  MODULE_B module_b(&amp;#34;modb&amp;#34;); // declare and instantiate module_b, module name != object name
+  MODULE_C module_c(&amp;#34;module_c&amp;#34;); // declare and instantiate module_c
+  sc_start(); // this can be skipped in this example because module instantiation happens during elaboration phase which is before sc_start
+  return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;sc_has_processed&#34;&gt;SC_HAS_PROCESSED&lt;/h2&gt;
+&lt;p&gt;&lt;code&gt;SC_HAS_PROCESSED&lt;/code&gt; 与&lt;code&gt;SC_CTOR&lt;/code&gt;的区别：&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

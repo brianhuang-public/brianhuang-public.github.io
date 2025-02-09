@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
+<title>Learning System C basic in one page | Brian&#39;s Video Codec Blog</title>
+<meta name="keywords" content="">
+<meta name="description" content="Intro
+SystemC用于硬件仿真的cmodel模型建立，相比传统C语言的cmodel模型，有以下好处。
+
+可以实现精确至cycle级的仿真模型
+
+Note
+本文是基于https://www.learnsystemc.com/ 整理的笔记，大部分内容该网站都很详细了，在此之上，对于其中的细节部分进行整理。
+sc module
+SC_MODULE该define用于声明module，对于每个module，本质上就是C&#43;&#43;的类，需要使用构造函数进行声明，声明方法如下：
+
+使用SC_CTOR marco，该marco会生成一个默认的构造函数，该构造函数不支持多参数的传入。
+
+
+// Learn with Examples, 2020, MIT license
+#include &lt;systemc&gt;
+using namespace sc_core;
+
+SC_MODULE(MODULE_A) { // approach #1, use systemC provided SC_MODULE macro
+  SC_CTOR(MODULE_A) { // default constructor
+    std::cout &lt;&lt; name() &lt;&lt; &#34; constructor&#34; &lt;&lt; std::endl; // name() returns the object name, which is provided during instantization
+  }
+};
+struct MODULE_B : public sc_module { // approach #2, this uses c&#43;&#43; syntax and is more readiable
+  SC_CTOR(MODULE_B) {
+    std::cout &lt;&lt; name() &lt;&lt; &#34; constructor&#34; &lt;&lt; std::endl;
+  }
+};
+class MODULE_C : public sc_module { // approach #3, use class instead of struct
+public: // have to explicitly declare constructor function as public 
+  SC_CTOR(MODULE_C) {
+    std::cout &lt;&lt; name() &lt;&lt; &#34; constructor&#34; &lt;&lt; std::endl;
+  }
+};
+
+int sc_main(int, char*[]) { // systemC entry point
+  MODULE_A module_a(&#34;module_a&#34;); // declare and instantiate module_a, it&#39;s common practice to assign module name == object name
+  MODULE_B module_b(&#34;modb&#34;); // declare and instantiate module_b, module name != object name
+  MODULE_C module_c(&#34;module_c&#34;); // declare and instantiate module_c
+  sc_start(); // this can be skipped in this example because module instantiation happens during elaboration phase which is before sc_start
+  return 0;
+}
+SC_HAS_PROCESSED
+SC_HAS_PROCESSED 与SC_CTOR的区别：">
+<meta name="author" content="">
+<link rel="canonical" href="http://localhost:1313/post/learning-systemc/">
+<link crossorigin="anonymous" href="/assets/css/stylesheet.d6fcd20a4fb86efa4dfac8ec95da60244cc8871042183da1ef28e3a762ad79c8.css" integrity="sha256-1vzSCk&#43;4bvpN&#43;sjsldpgJEzIhxBCGD2h7yjjp2Ktecg=" rel="preload stylesheet" as="style">
+<link rel="icon" href="http://localhost:1313/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="http://localhost:1313/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="http://localhost:1313/favicon-32x32.png">
+<link rel="apple-touch-icon" href="http://localhost:1313/apple-touch-icon.png">
+<link rel="mask-icon" href="http://localhost:1313/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<link rel="alternate" hreflang="en" href="http://localhost:1313/post/learning-systemc/">
+<noscript>
+    <style>
+        #theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --theme: rgb(29, 30, 32);
+                --entry: rgb(46, 46, 51);
+                --primary: rgb(218, 218, 219);
+                --secondary: rgb(155, 156, 157);
+                --tertiary: rgb(65, 66, 68);
+                --content: rgb(196, 196, 197);
+                --code-block-bg: rgb(46, 46, 51);
+                --code-bg: rgb(55, 56, 62);
+                --border: rgb(51, 51, 51);
+            }
+
+            .list {
+                background: var(--theme);
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-track {
+                background: 0 0;
+            }
+
+            .list:not(.dark)::-webkit-scrollbar-thumb {
+                border-color: var(--theme);
+            }
+        }
+
+    </style>
+</noscript>
+</head>
+
+<body class="" id="top">
+<script>
+    if (localStorage.getItem("pref-theme") === "dark") {
+        document.body.classList.add('dark');
+    } else if (localStorage.getItem("pref-theme") === "light") {
+        document.body.classList.remove('dark')
+    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark');
+    }
+
+</script>
+
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="http://localhost:1313/" accesskey="h" title="Brian&#39;s Video Codec Blog (Alt + H)">Brian&#39;s Video Codec Blog</a>
+            <div class="logo-switches">
+                <button id="theme-toggle" accesskey="t" title="(Alt + T)">
+                    <svg id="moon" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                    <svg id="sun" xmlns="http://www.w3.org/2000/svg" width="24" height="18" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <ul id="menu">
+        </ul>
+    </nav>
+</header>
+<main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+    
+    <h1 class="post-title entry-hint-parent">
+      Learning System C basic in one page
+    </h1>
+    <div class="post-meta"><span title='2025-01-27 18:27:33 +0800 CST'>January 27, 2025</span>
+
+</div>
+  </header> 
+  <div class="post-content"><h1 id="intro">Intro<a hidden class="anchor" aria-hidden="true" href="#intro">#</a></h1>
+<p>SystemC用于硬件仿真的cmodel模型建立，相比传统C语言的cmodel模型，有以下好处。</p>
+<ul>
+<li>可以实现精确至cycle级的仿真模型</li>
+</ul>
+<h1 id="note">Note<a hidden class="anchor" aria-hidden="true" href="#note">#</a></h1>
+<p>本文是基于https://www.learnsystemc.com/ 整理的笔记，大部分内容该网站都很详细了，在此之上，对于其中的细节部分进行整理。</p>
+<h1 id="sc-module">sc module<a hidden class="anchor" aria-hidden="true" href="#sc-module">#</a></h1>
+<p><code>SC_MODULE</code>该define用于声明module，对于每个module，本质上就是C++的类，需要使用构造函数进行声明，声明方法如下：</p>
+<ul>
+<li>使用<code>SC_CTOR</code> marco，该marco会生成一个默认的构造函数，该构造函数不支持多参数的传入。</li>
+<li></li>
+</ul>
+<pre tabindex="0"><code>// Learn with Examples, 2020, MIT license
+#include &lt;systemc&gt;
+using namespace sc_core;
+
+SC_MODULE(MODULE_A) { // approach #1, use systemC provided SC_MODULE macro
+  SC_CTOR(MODULE_A) { // default constructor
+    std::cout &lt;&lt; name() &lt;&lt; &#34; constructor&#34; &lt;&lt; std::endl; // name() returns the object name, which is provided during instantization
+  }
+};
+struct MODULE_B : public sc_module { // approach #2, this uses c++ syntax and is more readiable
+  SC_CTOR(MODULE_B) {
+    std::cout &lt;&lt; name() &lt;&lt; &#34; constructor&#34; &lt;&lt; std::endl;
+  }
+};
+class MODULE_C : public sc_module { // approach #3, use class instead of struct
+public: // have to explicitly declare constructor function as public 
+  SC_CTOR(MODULE_C) {
+    std::cout &lt;&lt; name() &lt;&lt; &#34; constructor&#34; &lt;&lt; std::endl;
+  }
+};
+
+int sc_main(int, char*[]) { // systemC entry point
+  MODULE_A module_a(&#34;module_a&#34;); // declare and instantiate module_a, it&#39;s common practice to assign module name == object name
+  MODULE_B module_b(&#34;modb&#34;); // declare and instantiate module_b, module name != object name
+  MODULE_C module_c(&#34;module_c&#34;); // declare and instantiate module_c
+  sc_start(); // this can be skipped in this example because module instantiation happens during elaboration phase which is before sc_start
+  return 0;
+}
+</code></pre><h2 id="sc_has_processed">SC_HAS_PROCESSED<a hidden class="anchor" aria-hidden="true" href="#sc_has_processed">#</a></h2>
+<p><code>SC_HAS_PROCESSED</code> 与<code>SC_CTOR</code>的区别：</p>
+<ul>
+<li>这两个marco中，<code>SC_HAS_PROCESSED</code>不会有默认构造函数的声明，<code>SC_CTOR</code>是有默认构造函数的声明的。</li>
+</ul>
+<p>因此使用<code>SC_HAS_PROCESSED</code> 时，需要显示声明构造函数。</p>
+<pre tabindex="0"><code>SC_MODULE(MODULE_C) { // pass additional input argument(s)
+  const int i;
+  SC_HAS_PROCESS(MODULE_C); // OK to use SC_CTOR, which will also define an un-used constructor: MODULE_A(sc_module_name);
+  MODULE_C(sc_module_name name, int i) : i(i) { // define the constructor function
+    SC_METHOD(func_c); // register member function
+  }
+  void func_c() { // define function
+    std::cout &lt;&lt; name() &lt;&lt; &#34;, additional input argument&#34; &lt;&lt; std::endl;
+  }
+};
+</code></pre><h2 id="simulation-processsc_method-sc_thread-sc_cthread">Simulation process(SC_METHOD SC_THREAD SC_CTHREAD)<a hidden class="anchor" aria-hidden="true" href="#simulation-processsc_method-sc_thread-sc_cthread">#</a></h2>
+<p>sc module中可以定义<code>SC_METHOD SC_THREAD SC_CTHREAD</code>的仿真进程，相当于面向对象编程中的方法。这三个的区别是：</p>
+<ul>
+<li>SC_METHOD：不耗时，类似systemverilog中的function，在method的内部不能使用wait()，即非阻塞的。</li>
+<li>SC_THREAD：耗时，可被阻塞。</li>
+<li>SC_CTHREAD：只能被时钟事件 / 静态事件驱动。</li>
+</ul>
+<p>SC_THREAD中既能实现SC_METHOD的功能也能实现SC_CTHREAD的功能。
+SC_CTHREAD shall not be invoked from the end_of_elaboration callback.</p>
+<h2 id="simulation-stages">Simulation stages<a hidden class="anchor" aria-hidden="true" href="#simulation-stages">#</a></h2>
+<p>与UVM component的phase机制类似，sc module也有类似的回调机制。具体顺序如下：</p>
+<ul>
+<li>构造函数调用</li>
+<li>before_end_of_elaboration()</li>
+<li>end_of_elaboration()</li>
+<li>start_of_simulation()</li>
+<li>sc_stop() (not callback, users call this)</li>
+<li>end_of_simulation()</li>
+<li>deconsturctor()</li>
+</ul>
+<h2 id="timing-unit">timing unit<a hidden class="anchor" aria-hidden="true" href="#timing-unit">#</a></h2>
+<p>SC_SEC, SC_MS, SC_US, SC_NS, SC_PS, SC_FS</p>
+<p>时间对象：sc_time</p>
+<p>如何获取仿真时间和比较仿真时间：
+<code>sc_time_stamp() == sc_time(4, SC_SEC)</code>
+其中sc_time_stamp()会返回一个当前仿真时间的sc_time对象。sc_time(4, SC_SEC)会创建一个4 SC_SEC的时间对象，仿真时间的比较实际上是sc_time对象的比较。</p>
+<h2 id="event">Event<a hidden class="anchor" aria-hidden="true" href="#event">#</a></h2>
+<p>sc_event 支持如下方法：</p>
+<ol>
+<li>void notify(): create an immediate notification (无延时)</li>
+<li>void notify(const sc_time&amp;), void notify(double, sc_time_unit):
+- zero time: create a delta notification.
+- non-zero time: create a timed notification at the given time, expressed relative to the simulation time when function notify is called
+-  <strong>notify with time这个函数不会阻塞进程，而是继续执行，例如t = t0触发notify(4, SC_SEC)，那么会继续执行后续方法，在t0+4时刻触发该事件。</strong></li>
+<li>cancel(): delete any pending notification for this event
+- At most one pending notification can exist for any given event. 每个事件最多只能有一个notification在pending
+- Immediate notification cannot be cancelled. 无延时的notify()不能被cancel。</li>
+<li>等待事件wait(event);</li>
+</ol>
+<h2 id="combined-event">Combined event<a hidden class="anchor" aria-hidden="true" href="#combined-event">#</a></h2>
+<p><code>wait(200, SC_NS, e1 | e2 | e3)</code></p>
+<p>前半部分约束了timeout时刻，200ns 后timeout；后半部分约束了等待的事件(可以使用 | or &amp; 对事件进行逻辑约束)</p>
+<h2 id="delta-cycle">Delta cycle<a hidden class="anchor" aria-hidden="true" href="#delta-cycle">#</a></h2>
+<p>与硬件仿真一致，SC中也有delta cycle的概念。can be thought of as a very small step of time within the simulation, which does not increase the user-visible time.</p>
+<p>When is delta cycle used:</p>
+<ol>
+<li>notify(SC_ZERO_TIME) causes the event to be notified in the evaluate phase of the next delta cycle, this is called a &ldquo;delta notification&rdquo;.</li>
+<li>A (direct or indirect) call to request_update() causes the update() method to be called in the update phase of the current delta cycle.</li>
+<li>wait(SC_ZERO_TIME); 仿真推进1个delta cycle</li>
+</ol>
+<h2 id="sensitivity">Sensitivity<a hidden class="anchor" aria-hidden="true" href="#sensitivity">#</a></h2>
+<p>主要区分静态敏感性和动态敏感性。</p>
+<h3 id="静态敏感性">静态敏感性<a hidden class="anchor" aria-hidden="true" href="#静态敏感性">#</a></h3>
+<p>静态敏感性是在进程声明时绑定到特定事件的敏感性。这种绑定在模拟启动前完成，进程会对这些绑定的事件保持响应。</p>
+<ul>
+<li>绑定关系在设计编译时静态定义，不会动态更改。</li>
+<li>常用于SC_METHOD和SC_THREAD。</li>
+<li>使用SC_METHOD或SC_THREAD时，通过sensitive关键字指定敏感事件列表。</li>
+</ul>
+<p>静态敏感性只能使用sensitive关键字绑定事件，不能使用类似wait(e1|e2)这种格式，绑定时间是在编译时确定的。</p>
+<h3 id="动态敏感性">动态敏感性<a hidden class="anchor" aria-hidden="true" href="#动态敏感性">#</a></h3>
+<p>可以使用wait来动态指定事件。</p>
+<h2 id="initialization">Initialization<a hidden class="anchor" aria-hidden="true" href="#initialization">#</a></h2>
+<p>SystemC仿真的初始化阶段负责完成以下动作，以确保模型从正确的状态开始运行：</p>
+<ol>
+<li>
+<p>模块实例化</p>
+<ul>
+<li>创建所有模块的实例，并调用其构造函数。</li>
+<li>在构造函数中定义进程（SC_METHOD、SC_THREAD或SC_CTHREAD）并设置其敏感性。</li>
+</ul>
+</li>
+<li>
+<p>进程静态敏感性绑定</p>
+<ul>
+<li>将进程与敏感信号或事件绑定。例如，通过sensitive关键字，将进程与信号的边沿或事件关联。</li>
+</ul>
+</li>
+<li>
+<p>初次触发检查</p>
+<ul>
+<li>检查每个进程是否需要初次触发：</li>
+<li>默认：在仿真启动时触发一次每个定义的SC_METHOD或SC_THREAD。</li>
+<li>如果调用了dont_initialize，则跳过该进程的初次触发。</li>
+</ul>
+</li>
+<li>
+<p>信号初始化</p>
+<ul>
+<li>初始化所有sc_signal的值。如果未显式赋值，则使用默认值。</li>
+<li>确保初始值在关联的模块中可以被正确读取。</li>
+</ul>
+</li>
+</ol>
+<pre tabindex="0"><code>SC_MODULE(my_module) {
+    sc_in&lt;bool&gt; clk;    // 输入时钟
+    sc_signal&lt;int&gt; data; // 数据信号
+
+    SC_CTOR(my_module) {
+        SC_METHOD(my_process);
+        sensitive &lt;&lt; clk.pos();
+        // dont_initialize(); // 如果需要禁止初次触发，可以取消注释
+    }
+
+    void my_process() {
+        std::cout &lt;&lt; &#34;Triggered at time: &#34; &lt;&lt; sc_time_stamp() &lt;&lt; &#34;, data = &#34; &lt;&lt; data.read() &lt;&lt; std::endl;
+    }
+};
+
+int sc_main(int argc, char* argv[]) {
+    sc_clock clk(&#34;clk&#34;, 10, SC_NS); // 创建时钟
+    sc_signal&lt;int&gt; data;
+
+    my_module uut(&#34;uut&#34;); // 实例化模块
+    uut.clk(clk);         // 绑定时钟信号
+
+    sc_start(1, SC_NS);   // 启动仿真
+
+    return 0;
+}
+</code></pre><h2 id="process-method">Process: Method<a hidden class="anchor" aria-hidden="true" href="#process-method">#</a></h2>
+<h3 id="next_trigger">next_trigger<a hidden class="anchor" aria-hidden="true" href="#next_trigger">#</a></h3>
+
+
+  </div>
+
+  <footer class="post-footer">
+    <ul class="post-tags">
+    </ul>
+  </footer>
+</article>
+    </main>
+    
+<footer class="footer">
+        <span>&copy; 2025 <a href="http://localhost:1313/">Brian&#39;s Video Codec Blog</a></span> · 
+
+    <span>
+        Powered by
+        <a href="https://gohugo.io/" rel="noopener noreferrer" target="_blank">Hugo</a> &
+        <a href="https://github.com/adityatelange/hugo-PaperMod/" rel="noopener" target="_blank">PaperMod</a>
+    </span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)" class="top-link" id="top-link" accesskey="g">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+        <path d="M12 6H0l6-6z" />
+    </svg>
+</a>
+
+<script>
+    let menu = document.getElementById('menu')
+    if (menu) {
+        menu.scrollLeft = localStorage.getItem("menu-scroll-position");
+        menu.onscroll = function () {
+            localStorage.setItem("menu-scroll-position", menu.scrollLeft);
+        }
+    }
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+
+</script>
+<script>
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+</script>
+<script>
+    document.getElementById("theme-toggle").addEventListener("click", () => {
+        if (document.body.className.includes("dark")) {
+            document.body.classList.remove('dark');
+            localStorage.setItem("pref-theme", 'light');
+        } else {
+            document.body.classList.add('dark');
+            localStorage.setItem("pref-theme", 'dark');
+        }
+    })
+
+</script>
+</body>
+
+</html>
